@@ -1,9 +1,13 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+// wrote the date module to get the date in the format I want
+const date = require(__dirname + "/date.js");
+
 
 const app = express();
 
-let items = [];
+const items = [];
+const workItems = [];
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -14,23 +18,22 @@ app.use(express.static("public"));
 app.set('view engine', 'ejs');
 
 app.get("/", (req, res) => {
-    
-    let today = new Date();
+    // date module being called as date.getDate() which will run the
+    // function in the date module exports
+    let day = date.getDate();
 
-// These are the options for toLocaleDateString
-let options = {
-    weekday: "long",
-    day: "numeric",
-    month: "long"
-};
-
-let day = today.toLocaleDateString("en-UK", options);
-
-
-
-res.render('list', {kindOfDay: day, newListItems: items});
+    res.render('list', { listTitle: day, newListItems: items });
 
 });
+
+app.get("/work", (req, res) => {
+    res.render("list", { listTitle: "Work List", newListItems: workItems });
+});
+
+app.get("/about", (req, res) => {
+    res.render("about");
+});
+
 
 /* This section of code grabs the added item from the post request, then
 pushes it to the array items. Once that is done, it redirects the page to
@@ -38,10 +41,17 @@ the home route, which then uses the res.render to display the updated page
 with the new item added. See list.ejs for how the items array is looped
 through for each list item. */
 app.post("/", (req, res) => {
-    let item = req.body.newItem;
-    items.push(item);
 
-    res.redirect("/");
+    let item = req.body.newItem;
+
+    if (req.body.list === "Work") {
+        workItems.push(item);
+        res.redirect("Work");
+    } else {
+        let item = req.body.newItem;
+        items.push(item);
+        res.redirect("/");
+    }
 });
 
 
