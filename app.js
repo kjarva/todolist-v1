@@ -7,6 +7,9 @@ let items = [];
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Tells express where to serve our static files from
+app.use(express.static("public"));
+
 // set up to ensure that our server knows we are using EJS as our templating module
 app.set('view engine', 'ejs');
 
